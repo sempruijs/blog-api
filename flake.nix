@@ -117,7 +117,6 @@
 
         packages = {
           default = backend;
-          site = site;
         } // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
           my-crate-llvm-coverage = craneLibLLvmTools.cargoLlvmCov (commonArgs // {
             inherit cargoArtifacts;
@@ -139,8 +138,7 @@
           packages = [
             # pkgs.ripgrep
             pkgs.sqlx-cli
-            pkgs.typescript
-            pkgs.nodePackages_latest.typescript-language-server
+            pkgs.postgresql_16
           ];
         };
       });
