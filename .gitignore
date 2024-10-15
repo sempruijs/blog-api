@@ -1,0 +1,10 @@
+result
+.direnv/
+backend/target/
+**/*.js
+site/ts/index.js
+node_modules
+**/package-lock.json
+.DS_Store
+.idea
+.vscode
