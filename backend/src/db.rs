@@ -1,33 +1,16 @@
-use crate::User;
+use crate::Article;
 use sqlx::PgPool;
 
-//// Inserts a new user into the users database
-pub async fn create_user(pool: &PgPool, u: User) -> Result<(), sqlx::Error> {
-    async fn update_user(pool: &PgPool, id: i32, u: &User) -> Result<(), sqlx::Error> {
-        sqlx::query!(
-            r#"
-            UPDATE users
-            SET name = $1, age = $2, email = $3
-            WHERE id = $4
-            "#,
-            u.name,
-            u.age,
-            u.email,
-            id
-        )
-        .execute(pool)
-        .await?;
-
-        Ok(())
-    }
+// Inserts a new article into the articles database
+pub async fn create_article(pool: &PgPool, a: Article) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
-        INSERT INTO users (name, age, email)
+        INSERT INTO articles (title, author, content)
         VALUES ($1, $2, $3)
         "#,
-        u.name,
-        u.age,
-        u.email
+        a.title,
+        a.author,
+        a.content
     )
     .execute(pool)
     .await?;
@@ -35,26 +18,17 @@ pub async fn create_user(pool: &PgPool, u: User) -> Result<(), sqlx::Error> {
     Ok(())
 }
 
-/// List all users from the database
-pub async fn read_users(pool: &PgPool) -> Result<Vec<User>, sqlx::Error> {
-    let users = sqlx::query_as!(User, r#"SELECT name, age, email FROM users"#)
-        .fetch_all(pool)
-        .await?;
-
-    Ok(users)
-}
-
-/// Update data of a user in the database
-pub async fn update_user(pool: &PgPool, id: i32, u: &User) -> Result<(), sqlx::Error> {
+// Updates an article in the articles database by ID
+pub async fn update_article(pool: &PgPool, id: i32, a: Article) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
-        UPDATE users
-        SET name = $1, age = $2, email = $3
+        UPDATE articles
+        SET title = $1, author = $2, content = $3
         WHERE id = $4
         "#,
-        u.name,
-        u.age,
-        u.email,
+        a.title,
+        a.author,
+        a.content,
         id
     )
     .execute(pool)
@@ -63,11 +37,11 @@ pub async fn update_user(pool: &PgPool, id: i32, u: &User) -> Result<(), sqlx::E
     Ok(())
 }
 
-/// Removes an user from the database
-pub async fn delete_user(pool: &PgPool, id: i32) -> Result<(), sqlx::Error> {
-    let result = sqlx::query!(
+// Deletes an article from the articles database by ID
+pub async fn delete_article(pool: &PgPool, id: i32) -> Result<(), sqlx::Error> {
+    sqlx::query!(
         r#"
-        DELETE FROM users
+        DELETE FROM articles
         WHERE id = $1
         "#,
         id
@@ -75,9 +49,39 @@ pub async fn delete_user(pool: &PgPool, id: i32) -> Result<(), sqlx::Error> {
     .execute(pool)
     .await?;
 
-    if result.rows_affected() == 0 {
-        println!("No user found with id {}", id);
-    }
-
     Ok(())
 }
+
+// Retrieves a specific article from the articles database by ID
+pub async fn get_article_by_id(pool: &PgPool, id: i32) -> Result<Article, sqlx::Error> {
+    let article = sqlx::query_as!(
+        Article,
+        r#"
+        SELECT id, title, author, content
+        FROM articles
+        WHERE id = $1
+        "#,
+        id
+    )
+    .fetch_one(pool)
+    .await?;
+
+    Ok(article)
+}
+
+// Retrieves all articles from the articles database
+pub async fn list_all_articles(pool: &PgPool) -> Result<Vec<Article>, sqlx::Error> {
+    let articles = sqlx::query_as!(
+        Article,
+        r#"
+        SELECT id, title, author, content
+        FROM articles
+        "#,
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(articles)
+}
+
+

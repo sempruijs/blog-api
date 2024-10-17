@@ -52,6 +52,9 @@
             "cargo"
             "llvm-tools"
             "rustc"
+            "rustfmt"
+            "rust-analyzer-nightly"
+            "rust-analyzer-vscode-extension"
           ]);
 
         # Build *just* the cargo dependencies, so we can reuse
@@ -139,6 +142,7 @@
             # pkgs.ripgrep
             pkgs.sqlx-cli
             pkgs.postgresql_16
+            pkgs.vscode-extensions.rust-lang.rust-analyzer
           ];
         };
       });

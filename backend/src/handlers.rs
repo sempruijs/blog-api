@@ -1,7 +1,7 @@
 use crate::db::*;
-use crate::User;
+use crate::Article;
 use sqlx::PgPool;
-use warp::http::StatusCode;
+// use warp::http::StatusCode;
 
 use chrono::Utc;
 
@@ -9,56 +9,58 @@ fn current_time_iso8601() -> String {
     Utc::now().to_rfc3339()
 }
 
-pub async fn create_user_handler(
-    user: User,
+
+pub async fn create_article_handler(
+    article: Article,
     pool: PgPool,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let now = current_time_iso8601();
-    println!("New user created: {:?}  ({})", user, now);
+    println!("New article created: {:?}  ({})", article, now);
 
-    match create_user(&pool, user).await {
-        Ok(_) => Ok(StatusCode::CREATED),
-        Err(_) => panic!("error while listing users"),
+    match create_article(&pool, article).await {
+        Ok(_) => Ok(warp::reply::with_status("Article created", warp::http::StatusCode::CREATED)),
+        Err(_) => panic!("failed to add user"),
     }
 }
 
-pub async fn list_users_handler(pool: PgPool) -> Result<impl warp::Reply, warp::Rejection> {
-
-    
-    let now = current_time_iso8601();
-    println!("Listing users. ({})", now);
-    match read_users(&pool).await {
-        Ok(users) => Ok(warp::reply::json(&users)),
-        Err(_) => panic!("error while listing users"),
-    }
-}
-
-pub async fn update_user_handler(
+pub async fn update_article_handler(
     id: i32,
-    updated_user: User,
+    article: Article,
     pool: PgPool,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let now = current_time_iso8601();
-    println!("User with id: {} will be updated to: {:?} {}", id, updated_user, now);
-    
-    match update_user(&pool, id, &updated_user).await {
-        Ok(_) => {
-            println!("User updated");
-            Ok(StatusCode::OK)
-        },
-        Err(_) => panic!("Error updating user"),
+    match update_article(&pool, id, article).await {
+        Ok(_) => Ok(warp::reply::with_status("Article updated", warp::http::StatusCode::OK)),
+        Err(_) => panic!("failed in updating the article"),
     }
 }
 
-pub async fn delete_user_handler(
+pub async fn delete_article_handler(
     id: i32,
     pool: PgPool,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let now = current_time_iso8601();
-    println!("User with id: {} deleted. ({})", id, now);
-    
-    match delete_user(&pool, id).await {
-        Ok(_) => Ok(StatusCode::OK),
-        Err(_) => panic!("error while deleting user"),
+    match delete_article(&pool, id).await {
+        Ok(_) => Ok(warp::reply::with_status("Article deleted", warp::http::StatusCode::OK)),
+        Err(_) => panic!("failed to delete article"),
     }
 }
+
+pub async fn get_article_by_id_handler(
+    id: i32,
+    pool: PgPool,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    match get_article_by_id(&pool, id).await {
+        Ok(article) => Ok(warp::reply::json(&article)),
+        Err(_) => panic!("failed to recieve specific article"),
+    }
+}
+
+pub async fn list_all_articles_handler(
+    pool: PgPool,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    match list_all_articles(&pool).await {
+        Ok(articles) => Ok(warp::reply::json(&articles)),
+        Err(_) => panic!("failed to list all users"),
+    }
+}
+
+
