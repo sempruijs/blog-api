@@ -37,20 +37,19 @@ pub async fn serve_routes(pool: PgPool) {
         .and(pool_filter.clone())
         .and_then(get_article_by_id_handler);
 
-    let list_all_articles = warp::get()
-        .and(warp::path("articles"))
-        .and(warp::path::end()) // Ensure this route doesn't have an ID path parameter
-        .and(pool_filter.clone())
-        .and_then(list_all_articles_handler);
+    let create_user = warp::post()
+        .and(warp::path("users"))  // Matches the "users" path
+        .and(warp::body::json())   // Extracts the JSON body as a `User`
+        .and(pool_filter.clone())  // Passes the database connection pool
+        .and_then(create_user_handler);
 
 
     // Combine all the routes
-    // let routes = create_user.or(list_users).or(delete_user).or(update_user).with(cors);
     let routes = create_article
         .or(update_article)
         .or(delete_article)
         .or(get_article_by_id)
-        .or(list_all_articles)
+        .or(create_user)
         .with(cors);
 
     println!("Starting server");

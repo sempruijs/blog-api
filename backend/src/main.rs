@@ -10,11 +10,18 @@ pub mod routes;
 
 //TODO: make age u32
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-
 pub struct Article {
     title: String,
-    author: String,
+    author: User,
     content: String,
+    id: i32,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct User {
+    email: String,
+    name: String,
+    password: String,
     id: i32,
 }
 

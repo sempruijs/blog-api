@@ -1,5 +1,5 @@
 use crate::db::*;
-use crate::Article;
+use crate::{Article, User};
 use sqlx::PgPool;
 // use warp::http::StatusCode;
 
@@ -54,13 +54,12 @@ pub async fn get_article_by_id_handler(
     }
 }
 
-pub async fn list_all_articles_handler(
+pub async fn create_user_handler(
+    user: User,
     pool: PgPool,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    match list_all_articles(&pool).await {
-        Ok(articles) => Ok(warp::reply::json(&articles)),
-        Err(_) => panic!("failed to list all users"),
+    match create_user(&pool, user).await {
+        Ok(_) => Ok(warp::reply::with_status("User created", warp::http::StatusCode::CREATED)),
+        Err(_) => panic!("failed to create user"),
     }
 }
-
-
